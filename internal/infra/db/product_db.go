@@ -1,5 +1,7 @@
 package database
 
+/*Esse arquivo representa a repository pois comunica direto com a base*/
+
 import (
 	"log"
 
