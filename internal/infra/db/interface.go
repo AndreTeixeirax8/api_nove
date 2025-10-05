@@ -1,5 +1,7 @@
 package database
 
+/*Interface da repository*/
+
 import "github.com/api_nove/internal/entity"
 
 type UserInterface interface {
