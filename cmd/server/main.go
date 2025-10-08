@@ -34,7 +34,11 @@ func main() {
 	}
 
 	db.AutoMigrate(&entity.Product{}, &entity.User{})
-	http.ListenAndServe("8000", nil)
+	productDB := database.NewProduct(db)
+	productHandler := NewProductHandler(productDB)
+	http.HandleFunc("/products", productHandler.CreateProduct)
+	fmt.Printf("✅ Servidor rodando na porta %s\n", config.WebServerPort)
+	http.ListenAndServe(fmt.Sprintf(":%s", config.WebServerPort), nil)
 }
 
 type ProductHandler struct {
