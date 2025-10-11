@@ -3,11 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/api_nove/internal/dto"
 	"github.com/api_nove/internal/entity"
 	database "github.com/api_nove/internal/infra/db"
+	"github.com/go-chi/chi/v5"
 )
 
 type ProductHandler struct {
@@ -40,4 +42,21 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "✅ Produto criado com sucesso: %s", p.ID)
+}
+
+func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id") //Obtem parametro da rota
+	if id == "" {
+		log.Println("⚠️[HANDLER] Id informado esta vazio")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	product, err := h.ProductDB.FindByID(id)
+	if err != nil {
+		log.Println("🔍[HANDLER] Não foi encontrado um produto com o id informado")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(product) //Retorna o JSON do produto
 }
