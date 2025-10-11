@@ -9,6 +9,7 @@ import (
 	"github.com/api_nove/internal/dto"
 	"github.com/api_nove/internal/entity"
 	database "github.com/api_nove/internal/infra/db"
+	entityPkg "github.com/api_nove/pkg/entity"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -59,4 +60,40 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(product) //Retorna o JSON do produto
+}
+
+func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		log.Println("⚠️[HANDLER] Id informado esta vazio")
+		w.WriteHeader((http.StatusBadRequest))
+		return
+	}
+
+	var product entity.Product
+	err := json.NewDecoder(r.Body).Decode(&product)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	product.ID, err = entityPkg.ParseID(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err = h.ProductDB.FindByID(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	err = h.ProductDB.Update(&product)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+
 }

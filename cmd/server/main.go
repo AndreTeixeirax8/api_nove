@@ -42,6 +42,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Post("/products", productHandler.CreateProduct)
 	r.Get("/products/{id}", productHandler.GetProduct)
+	r.Put("/products/{id}", productHandler.UpdateProduct)
 
 	fmt.Printf("✅ Servidor rodando na porta %s\n", config.WebServerPort)
 	http.ListenAndServe(fmt.Sprintf(":%s", config.WebServerPort), r)
