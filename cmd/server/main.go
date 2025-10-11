@@ -9,6 +9,8 @@ import (
 	database "github.com/api_nove/internal/infra/db"
 	"github.com/api_nove/internal/infra/webserver/handlers"
 
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -35,7 +37,11 @@ func main() {
 	db.AutoMigrate(&entity.Product{}, &entity.User{})
 	productDB := database.NewProduct(db)
 	productHandler := handlers.NewProductHandler(productDB)
-	http.HandleFunc("/products", productHandler.CreateProduct)
+
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Post("/products", productHandler.CreateProduct)
+
 	fmt.Printf("✅ Servidor rodando na porta %s\n", config.WebServerPort)
-	http.ListenAndServe(fmt.Sprintf(":%s", config.WebServerPort), nil)
+	http.ListenAndServe(fmt.Sprintf(":%s", config.WebServerPort), r)
 }
