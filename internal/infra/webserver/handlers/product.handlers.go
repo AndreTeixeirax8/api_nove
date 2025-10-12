@@ -97,3 +97,27 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 }
+
+func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		log.Println("⚠️[HANDLER] Id informado esta vazio")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	_, err := h.ProductDB.FindByID(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		log.Println("🔍[HANDLER] Não foi encontrado um produto com o id informado")
+		return
+	}
+
+	err = h.ProductDB.Delete(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("❌[HANDLER] Ocorreu um erro ao deletar o produto")
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
