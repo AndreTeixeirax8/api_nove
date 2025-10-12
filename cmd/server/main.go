@@ -38,6 +38,9 @@ func main() {
 	productDB := database.NewProduct(db)
 	productHandler := handlers.NewProductHandler(productDB)
 
+	userDb := database.NewUser(db)
+	userHandler := handlers.NewUserHandler(userDb)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Post("/products", productHandler.CreateProduct)
@@ -45,6 +48,8 @@ func main() {
 	r.Get("/products", productHandler.GetAllProducts)
 	r.Put("/products/{id}", productHandler.UpdateProduct)
 	r.Delete("/products/{id}", productHandler.DeleteProduct)
+
+	r.Post("/users", userHandler.Create)
 
 	fmt.Printf("✅ Servidor rodando na porta %s\n", config.WebServerPort)
 	http.ListenAndServe(fmt.Sprintf(":%s", config.WebServerPort), r)
